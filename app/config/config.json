@@ -1,0 +1,9 @@
+{
+    "static": "https://wesjd.net",
+    "influx": {
+        "address": "http://stats.modernautomotive.me:8086",
+        "username": "login",
+        "password": "bigmodernautomotivegong",
+        "database": "data"
+    }
+}
