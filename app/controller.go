@@ -23,6 +23,7 @@ type Checker interface {
 type CheckResult struct {
 	Passing int
 	Failing int
+	WorkingProxies []string
 }
 
 func Initialize() {
