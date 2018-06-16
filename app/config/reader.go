@@ -9,6 +9,7 @@ import (
 )
 
 type Configuration struct {
+	DatabaseUrl string
 	Static string
 	Influx InfluxConfig
 }
@@ -21,9 +22,9 @@ type InfluxConfig struct {
 }
 
 func Read() *Configuration {
-	config := Configuration{}
+	config := &Configuration{}
 	_, dirname, _, _ := runtime.Caller(0)
 	err := gonfig.GetConf(path.Join(filepath.Dir(dirname), "config.json"), config)
 	utils.CheckError(err)
-	return &config
+	return config
 }

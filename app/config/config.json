@@ -1,5 +1,6 @@
 {
-    "static": "https://wesjd.net",
+    "databaseUrl": "",
+    "static": "http://www.example.com/",
     "influx": {
         "address": "http://stats.modernautomotive.me:8086",
         "username": "login",
