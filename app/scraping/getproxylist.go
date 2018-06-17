@@ -1,11 +1,12 @@
-package checkers
+package scraping
 
 import (
 		"time"
 	"github.com/ddliu/go-httpclient"
 	"encoding/json"
 	"github.com/WesJD/proxy-scraper/app/utils"
-	)
+	"fmt"
+)
 
 type PubProxyResponse struct {
 	Data []PubProxyResponseData
@@ -17,7 +18,7 @@ type PubProxyResponseData struct {
 
 type PubProxy struct {}
 
-func (s PubProxy) Check(url string, trueResponse string) (result *CheckResult, err error) {
+func (s PubProxy) Check(url string, trueResponse string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("http://pubproxy.com/api/proxy?limit=20&level=anonymous&level=elite")
@@ -30,18 +31,14 @@ func (s PubProxy) Check(url string, trueResponse string) (result *CheckResult, e
 	if err != nil {
 		return
 	}
+	fmt.Println(value)
 	if err = json.Unmarshal([]byte(value), &response); err != nil {
 		return
 	}
 
-	result = &CheckResult{}
 	for _, proxy := range response.Data {
-		if utils.CheckProxy(url, trueResponse, proxy.IpPort) {
-			result.Passing++
-			result.WorkingProxies = append(result.WorkingProxies, proxy.IpPort)
-		} else {
-			result.Failing++
-		}
+		address := proxy.IpPort
+		result[address] = utils.CheckProxy(url, trueResponse, address)
 	}
 
 	return
