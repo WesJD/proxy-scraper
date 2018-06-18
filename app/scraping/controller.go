@@ -11,7 +11,7 @@ import (
 
 var (
 	checkers = []Checker{
-		PubProxy{},
+		GetProxyList{},
 	}
 )
 

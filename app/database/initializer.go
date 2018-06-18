@@ -6,11 +6,15 @@ import (
 	"github.com/WesJD/proxy-scraper/app/config"
 	"github.com/influxdata/influxdb/client/v2"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gchaincl/dotsql"
+	"runtime"
+	"path"
+	"path/filepath"
 )
 
 var (
-	Sql *sql.DB
-	Influx client.Client
+	Sql             *sql.DB
+	Influx          client.Client
 	submitStatement *sql.Stmt
 )
 
@@ -27,41 +31,22 @@ func Connect(config *config.Configuration) {
 	Sql = sqlDb
 	utils.CheckError(err)
 
+	// Loads queries from file
+	_, dirname, _, _ := runtime.Caller(0)
+	dot, err := dotsql.LoadFromFile(path.Join(filepath.Dir(dirname), "setup.sql"))
+
+	utils.CheckError(err)
+
 	//defaults
-	Sql.Exec("CREATE TABLE IF NOT EXISTS proxies (ip_port CHAR(40) NOT NULL, checking BOOL NOT NULL, working BOOL NOT NULL, last_checked TIMESTAMP NOT NULL, UNIQUE (ip_port))")
-	Sql.Exec(`
-		DELIMITER //
-		DROP PROCEDURE IF EXISTS matchProxies //
+	names := []string {
+		"setup-proxies",
+	}
+	for _, name := range names {
+		_, err = dot.Exec(Sql, name)
+		utils.CheckError(err)
+	}
 
-		CREATE PROCEDURE
-  			matchProxies( amount INT, age TIMESTAMP )
-		BEGIN
-    		DECLARE _proxy CHAR(40);
-    		DECLARE done INT;
-
-    		DECLARE cur_proxies CURSOR FOR 
-        		SELECT ip_port FROM proxies WHERE checking = 0 AND last_checked < age AND working = 1 LIMIT amount;
-    		DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-
-    		SELECT ip_port FROM proxies WHERE checking = 0 AND last_checked < age AND working = 1 LIMIT amount;
-    
-    		OPEN cur_proxies;
-
-    		Reading_proxies: LOOP
-        		FETCH NEXT FROM cur_proxies INTO _proxy;
-        		IF done THEN
-            		LEAVE Reading_proxies;
-        		END IF;
-
-        		UPDATE proxies SET checking = TRUE WHERE ip_port = _proxy;
-    		END LOOP;
-		END
-		//
-
-		DELIMITER ;
-	`)
-
-	stmt, err := Sql.Prepare("INSERT INTO proxies (ip_port, working) VALUES (?,?) ON DUPLICATE KEY UPDATE working=VALUES(working)")
+	stmt, err := dot.Prepare(Sql, "insert-proxies")
 	utils.CheckError(err)
 	submitStatement = stmt
 }

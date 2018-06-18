@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-		"github.com/WesJD/proxy-scraper/app/config"
+	"github.com/WesJD/proxy-scraper/app/config"
 	"time"
 	"github.com/WesJD/proxy-scraper/app/database"
 	"github.com/WesJD/proxy-scraper/app/scraping"
@@ -15,8 +15,10 @@ func Initialize() {
 	cfg := config.Read()
 
 	httpclient.Defaults(httpclient.Map{
-		httpclient.OPT_TIMEOUT: 7,
+		httpclient.OPT_TIMEOUT:   7,
+		httpclient.OPT_USERAGENT: "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0",
 	})
+
 	database.Connect(cfg)
 	scraping.Start(cfg)
 
@@ -39,5 +41,6 @@ func Initialize() {
 		os.Exit(0)
 	}()
 
-	for lock {}
+	for lock {
+	}
 }

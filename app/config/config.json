@@ -1,5 +1,5 @@
 {
-    "databaseUrl": "root@/proxies",
+    "databaseUrl": "wesleysmith123:shithead@/proxies",
     "static": "http://www.example.com/",
     "influx": {
         "address": "http://stats.modernautomotive.me:8086",
