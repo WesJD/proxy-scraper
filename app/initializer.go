@@ -9,7 +9,7 @@ import (
 	"github.com/WesJD/proxy-scraper/app/database"
 	"github.com/WesJD/proxy-scraper/app/scraping"
 	"github.com/ddliu/go-httpclient"
-)
+	)
 
 func Initialize() {
 	cfg := config.Read()
@@ -41,6 +41,5 @@ func Initialize() {
 		os.Exit(0)
 	}()
 
-	for lock {
-	}
+	select {}
 }

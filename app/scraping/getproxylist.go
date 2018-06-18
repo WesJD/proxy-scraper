@@ -16,15 +16,13 @@ type GetProxyListResponse struct {
 type GetProxyList struct{}
 
 func (s GetProxyList) Check(url string, trueResponse string) (result map[string]bool, err error) {
-	fmt.Println("Began checking GetProxyList")
-
 	res, err := httpclient.
 		Begin().
-		Get("http://api.getproxylist.com/proxy?protocol[]=http&anonymity[]=high%20anonymity&anonymity[]=anonymous")
-	fmt.Println("Finished fetching website")
+		Get("https://api.getproxylist.com/proxy?protocol[]=http&anonymity[]=high%20anonymity&anonymity[]=anonymous")
 	if err != nil {
 		return
 	}
+
 	var response GetProxyListResponse
 	value, err := res.ToString()
 	if err != nil {
