@@ -11,7 +11,7 @@ import (
 
 var (
 	checkers = []Checker{
-		GetProxyList{},
+		&PremProxy{},
 	}
 )
 
@@ -34,6 +34,7 @@ func Start(config *config.Configuration) {
 					fmt.Println(":(", err.Error())
 					continue
 				}
+				fmt.Println(proxies)
 				database.SubmitProxies(proxies)
 				time.Sleep(checker.WaitTime())
 			}

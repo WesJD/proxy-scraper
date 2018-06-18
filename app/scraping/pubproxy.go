@@ -18,7 +18,7 @@ type PubProxyResponseData struct {
 
 type PubProxy struct{}
 
-func (s PubProxy) Check(url string, trueResponse string) (result map[string]bool, err error) {
+func (s *PubProxy) Check(url string, trueResponse string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("http://pubproxy.com/api/proxy?limit=20&level=anonymous&level=elite")
