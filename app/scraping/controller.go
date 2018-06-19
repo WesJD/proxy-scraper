@@ -7,11 +7,15 @@ import (
 	"github.com/WesJD/proxy-scraper/app/utils"
 	"github.com/WesJD/proxy-scraper/app/config"
 	"github.com/WesJD/proxy-scraper/app/database"
-)
+	)
 
 var (
 	checkers = []Checker{
+		&FreeProxyList{},
+		&GetProxyList{},
+		&Hidester{},
 		&PremProxy{},
+		&PubProxy{},
 	}
 )
 
@@ -27,17 +31,18 @@ func Start(config *config.Configuration) {
 	utils.CheckError(err)
 
 	for _, checker := range checkers {
-		go func() {
+		go func(checker Checker) {
 			for {
 				proxies, err := checker.Check(config.Static, trueResponse)
 				if err != nil {
-					fmt.Println(":(", err.Error())
+					time.Sleep(checker.WaitTime())
 					continue
 				}
 				fmt.Println(proxies)
 				database.SubmitProxies(proxies)
 				time.Sleep(checker.WaitTime())
 			}
-		}()
+		}(checker)
 	}
 }
+

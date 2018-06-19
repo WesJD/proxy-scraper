@@ -8,8 +8,7 @@ import (
 	"golang.org/x/net/html"
 	"strings"
 	"github.com/WesJD/proxy-scraper/app/utils"
-	"strconv"
-)
+	)
 
 type PremProxy struct{}
 
@@ -18,11 +17,12 @@ type HtmlProxy struct {
 	Anonymity string
 }
 
-const urlFormat = "https://premproxy.com/list/%02d.htm"
-const totalPages = 13 // there are no more than 13 available
+const (
+ 	urlFormat = "https://premproxy.com/list/%02d.htm"
+ 	totalPages = 13 // there are no more than 13 available
+)
 
 func (s *PremProxy) Check(url string, trueResponse string) (result map[string]bool, err error) {
-
 	var proxies []string
 
 	result = make(map[string]bool)
@@ -32,15 +32,8 @@ func (s *PremProxy) Check(url string, trueResponse string) (result map[string]bo
 		if err != nil {
 			return
 		}
-		for index, proxy := range proxies {
+		for _, proxy := range proxies {
 			result[proxy] = utils.CheckProxy(url, trueResponse, proxy)
-			fmt.Printf("[page %2s/%2s] (proxy %2s/%2s) Got a proxy %20s : %s\n",
-				strconv.Itoa(page),
-				strconv.Itoa(totalPages),
-				strconv.Itoa(index + 1),
-				strconv.Itoa(len(proxies)),
-				proxy,
-				strconv.FormatBool(result[proxy]))
 		}
 	}
 
@@ -67,7 +60,7 @@ func getProxies(pageNumber int) (proxies []string, err error) {
 
 	for htmlProxyNode := doc.Find("#proxylistt").Nodes[0].FirstChild.NextSibling.NextSibling.NextSibling.FirstChild;
 		htmlProxyNode.NextSibling != nil;
-	htmlProxyNode = htmlProxyNode.NextSibling {
+		htmlProxyNode = htmlProxyNode.NextSibling {
 		proxy := pullProxy(htmlProxyNode)
 		if proxy == nil {
 			continue

@@ -2,8 +2,7 @@ package utils
 
 import (
 	"github.com/ddliu/go-httpclient"
-	"fmt"
-)
+	)
 
 func CheckProxy(url string, trueResponse string, proxyIp string) bool {
 	res, err := httpclient.
@@ -11,7 +10,6 @@ func CheckProxy(url string, trueResponse string, proxyIp string) bool {
 		WithOption(httpclient.OPT_PROXY, proxyIp).
 		Get(url)
 	if err != nil {
-		fmt.Println(proxyIp, "nar", err.Error())
 		return false
 	}
 

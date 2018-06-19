@@ -30,7 +30,7 @@ func (s *FreeProxyList) Check(url string, trueResponse string) (result map[strin
 
 	for htmlProxy = doc.Find("#proxylisttable").Get(0).FirstChild.NextSibling.FirstChild;
 		htmlProxy.NextSibling != nil;
-	htmlProxy = htmlProxy.NextSibling {
+		htmlProxy = htmlProxy.NextSibling {
 		fc := htmlProxy.FirstChild
 		address := fc.FirstChild.Data + ":" + fc.NextSibling.FirstChild.Data
 

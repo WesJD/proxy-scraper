@@ -5,8 +5,7 @@ import (
 	"github.com/ddliu/go-httpclient"
 	"encoding/json"
 	"github.com/WesJD/proxy-scraper/app/utils"
-	"fmt"
-)
+	)
 
 type PubProxyResponse struct {
 	Data []PubProxyResponseData
@@ -31,13 +30,11 @@ func (s *PubProxy) Check(url string, trueResponse string) (result map[string]boo
 	if err != nil {
 		return
 	}
-	fmt.Println(value)
 	if err = json.Unmarshal([]byte(value), &response); err != nil {
 		return
 	}
 
 	result = make(map[string]bool)
-
 	for _, proxy := range response.Data {
 		address := proxy.IpPort
 		result[address] = utils.CheckProxy(url, trueResponse, address)
@@ -46,6 +43,6 @@ func (s *PubProxy) Check(url string, trueResponse string) (result map[string]boo
 	return
 }
 
-func (s PubProxy) WaitTime() time.Duration {
-	return 1000 * 5 * time.Millisecond
+func (s *PubProxy) WaitTime() time.Duration {
+	return time.Minute
 }

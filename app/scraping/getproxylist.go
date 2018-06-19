@@ -35,12 +35,12 @@ func (s *GetProxyList) Check(url string, trueResponse string) (result map[string
 
 	result = make(map[string]bool)
 
-	address := fmt.Sprintf("%s%d", response.Ip + ":", response.Port)
+	address := fmt.Sprintf("%s:%d", response.Ip, response.Port)
 	result[address] = utils.CheckProxy(url, trueResponse, address)
 
 	return
 }
 
 func (s GetProxyList) WaitTime() time.Duration {
-	return 1000 * 5 * time.Millisecond
+	return 5 * time.Second
 }
