@@ -37,7 +37,3 @@ CREATE PROCEDURE
 //
 
 DELIMITER ;
-
--- name: insert-proxies
-INSERT INTO proxies (ip_port, working) VALUES (?, ?)
-ON DUPLICATE KEY UPDATE working = VALUES(working);

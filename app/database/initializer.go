@@ -7,15 +7,12 @@ import (
 	"github.com/influxdata/influxdb/client/v2"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gchaincl/dotsql"
-	"runtime"
-	"path"
-	"path/filepath"
 )
 
 var (
 	Sql             *sql.DB
 	Influx          client.Client
-	submitStatement *sql.Stmt
+	AppSql          *dotsql.DotSql
 )
 
 func Connect(config *config.Configuration) {
@@ -31,10 +28,17 @@ func Connect(config *config.Configuration) {
 	Sql = sqlDb
 	utils.CheckError(err)
 
-	// Loads queries from file
-	_, dirname, _, _ := runtime.Caller(0)
-	dot, err := dotsql.LoadFromFile(path.Join(filepath.Dir(dirname), "setup.sql"))
+	setupDefaults()
 
+	app, err := dotsql.LoadFromFile(utils.Resource("app.sql"))
+	utils.CheckError(err)
+	AppSql = app
+
+	makeStatements()
+}
+
+func setupDefaults() {
+	setup, err := dotsql.LoadFromFile(utils.Resource("setup.sql"))
 	utils.CheckError(err)
 
 	//defaults
@@ -42,11 +46,7 @@ func Connect(config *config.Configuration) {
 		"setup-proxies",
 	}
 	for _, name := range names {
-		_, err = dot.Exec(Sql, name)
+		_, err = setup.Exec(Sql, name)
 		utils.CheckError(err)
 	}
-
-	stmt, err := dot.Prepare(Sql, "insert-proxies")
-	utils.CheckError(err)
-	submitStatement = stmt
 }

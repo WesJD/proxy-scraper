@@ -6,5 +6,11 @@
         "username": "login",
         "password": "bigmodernautomotivegong",
         "database": "data"
+    },
+    "checking": {
+        "services": 2,
+        "perRound": 10,
+        "olderThan": "1 minute",
+        "everyMs": 1000
     }
 }

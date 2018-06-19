@@ -2,10 +2,8 @@ package scraping
 
 import (
 	"time"
-	"github.com/ddliu/go-httpclient"
-	"fmt"
-	"github.com/WesJD/proxy-scraper/app/utils"
-	"github.com/WesJD/proxy-scraper/app/config"
+		"fmt"
+		"github.com/WesJD/proxy-scraper/app/config"
 	"github.com/WesJD/proxy-scraper/app/database"
 	)
 
@@ -24,12 +22,7 @@ type Checker interface {
 	WaitTime() time.Duration
 }
 
-func Start(config *config.Configuration) {
-	res, err := httpclient.Get(config.Static)
-	utils.CheckError(err)
-	trueResponse, err := res.ToString()
-	utils.CheckError(err)
-
+func Start(config *config.Configuration, trueResponse string) {
 	for _, checker := range checkers {
 		go func(checker Checker) {
 			for {
@@ -44,5 +37,7 @@ func Start(config *config.Configuration) {
 			}
 		}(checker)
 	}
+
+	return
 }
 

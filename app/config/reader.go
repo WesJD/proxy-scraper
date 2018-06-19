@@ -1,17 +1,16 @@
 package config
 
 import (
-	"runtime"
 	"github.com/tkanos/gonfig"
-	"path"
-	"path/filepath"
 	"github.com/WesJD/proxy-scraper/app/utils"
+	"time"
 )
 
 type Configuration struct {
 	DatabaseUrl string
 	Static string
 	Influx InfluxConfig
+	Checking CheckingConfig
 }
 
 type InfluxConfig struct {
@@ -21,10 +20,16 @@ type InfluxConfig struct {
 	Database string
 }
 
+type CheckingConfig struct {
+	Services int
+	PerRound int
+	OlderThan string
+	EveryMs time.Duration
+}
+
 func Read() *Configuration {
 	config := &Configuration{}
-	_, dirname, _, _ := runtime.Caller(0)
-	err := gonfig.GetConf(path.Join(filepath.Dir(dirname), "config.json"), config)
+	err := gonfig.GetConf(utils.Resource("config.json"), config)
 	utils.CheckError(err)
 	return config
 }
