@@ -5,15 +5,15 @@ import (
 		"fmt"
 		"github.com/WesJD/proxy-scraper/app/config"
 	"github.com/WesJD/proxy-scraper/app/database"
-	)
+	"reflect"
+)
 
 var (
 	checkers = []Checker{
+		&ProxyNova{},
 		&FreeProxyList{},
 		&GetProxyList{},
-		&Hidester{
-			Offset: 9999999,
-		},
+		&Hidester{},
 		&PremProxy{},
 		&PubProxy{},
 	}
@@ -30,10 +30,11 @@ func Start(config *config.Configuration, trueResponse string) {
 			for {
 				proxies, err := checker.Check(config.Static, trueResponse)
 				if err != nil {
+					fmt.Println(reflect.TypeOf(checker), err)
 					time.Sleep(checker.WaitTime())
 					continue
 				}
-				fmt.Println(proxies)
+				fmt.Println(reflect.TypeOf(checker), proxies)
 				database.SubmitProxies(proxies)
 				time.Sleep(checker.WaitTime())
 			}

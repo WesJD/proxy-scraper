@@ -6,6 +6,7 @@ import (
 	"time"
 	"encoding/json"
 	"github.com/WesJD/proxy-scraper/app/utils"
+	"github.com/headzoo/surf/errors"
 )
 
 type GetProxyListResponse struct {
@@ -35,6 +36,10 @@ func (s *GetProxyList) Check(url string, trueResponse string) (result map[string
 
 	result = make(map[string]bool)
 
+	if response.Port == 0 {
+		err = errors.New("exceeded daily usage for get proxy list")
+		return
+	}
 	address := fmt.Sprintf("%s:%d", response.Ip, response.Port)
 	result[address] = utils.CheckProxy(url, trueResponse, address)
 

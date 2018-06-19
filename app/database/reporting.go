@@ -50,4 +50,8 @@ func ReportStats(batchConfig client.BatchPointsConfig) {
 	batch.AddPoint(point)
 
 	err = Influx.Write(batch)
+	utils.CheckError(err)
+
+	err = Influx.Close()
+	utils.CheckError(err)
 }

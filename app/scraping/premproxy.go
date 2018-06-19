@@ -91,5 +91,5 @@ func pullProxy(node *html.Node) *HtmlProxy {
 }
 
 func (s *PremProxy) WaitTime() time.Duration {
-	return 1 * time.Hour // shrug
+	return 5 * time.Minute // shrug
 }

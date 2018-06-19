@@ -43,13 +43,16 @@ func (s *Hidester) Check(url string, trueResponse string) (result map[string]boo
 	if err != nil {
 		return
 	}
-	if len(response) == 0 {
-		s.Offset = 0
-		err = errors.New("overflowed offset")
-		return
-	}
 	if err = json.Unmarshal([]byte(value), &response); err != nil {
 		return
+	}
+	if len(response) == 0 {
+		if s.Offset == 0 {
+			err = errors.New("no data gotten from offset 0")
+			return
+		}
+		s.Offset = 0
+		return s.Check(url, trueResponse)
 	}
 
 	s.Offset++

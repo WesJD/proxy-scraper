@@ -5,7 +5,9 @@ import (
 	"github.com/ddliu/go-httpclient"
 	"encoding/json"
 	"github.com/WesJD/proxy-scraper/app/utils"
-	)
+	"strings"
+	"github.com/headzoo/surf/errors"
+)
 
 type PubProxyResponse struct {
 	Data []PubProxyResponseData
@@ -28,6 +30,10 @@ func (s *PubProxy) Check(url string, trueResponse string) (result map[string]boo
 	var response PubProxyResponse
 	value, err := res.ToString()
 	if err != nil {
+		return
+	}
+	if strings.Contains(value, "reached the maximum") {
+		err = errors.New("reached the maximum amount of requests")
 		return
 	}
 	if err = json.Unmarshal([]byte(value), &response); err != nil {
