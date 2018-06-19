@@ -11,10 +11,15 @@ import (
 	"github.com/ddliu/go-httpclient"
 	"github.com/WesJD/proxy-scraper/app/checking"
 	"github.com/WesJD/proxy-scraper/app/utils"
+	"github.com/influxdata/influxdb/client/v2"
 )
 
 func Initialize() {
 	cfg := config.Read()
+	batchConfig := client.BatchPointsConfig{
+		Database: cfg.Influx.Database,
+		Precision: "s",
+	}
 
 	httpclient.Defaults(httpclient.Map{
 		httpclient.OPT_TIMEOUT:   7,
@@ -35,8 +40,8 @@ func Initialize() {
 
 	go func() {
 		for {
-			database.ReportStats()
-			time.Sleep(1000 * 60 * 3 * time.Millisecond)
+			database.ReportStats(batchConfig)
+			time.Sleep(cfg.Influx.UpdateEveryMs * time.Millisecond)
 		}
 	}()
 

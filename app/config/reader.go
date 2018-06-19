@@ -18,6 +18,7 @@ type InfluxConfig struct {
 	Username string
 	Password string
 	Database string
+	UpdateEveryMs time.Duration
 }
 
 type CheckingConfig struct {
