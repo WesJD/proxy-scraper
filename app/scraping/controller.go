@@ -11,7 +11,9 @@ var (
 	checkers = []Checker{
 		&FreeProxyList{},
 		&GetProxyList{},
-		&Hidester{},
+		&Hidester{
+			Offset: 9999999,
+		},
 		&PremProxy{},
 		&PubProxy{},
 	}

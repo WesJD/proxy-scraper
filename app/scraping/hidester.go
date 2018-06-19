@@ -7,6 +7,7 @@ import (
 	"github.com/ddliu/go-httpclient"
 	"encoding/json"
 	"github.com/WesJD/proxy-scraper/app/utils"
+	"errors"
 )
 
 type Hidester struct {
@@ -40,6 +41,11 @@ func (s *Hidester) Check(url string, trueResponse string) (result map[string]boo
 	var response []HidesterProxy
 	value, err := res.ToString()
 	if err != nil {
+		return
+	}
+	if len(response) == 0 {
+		s.Offset = 0
+		err = errors.New("overflowed offset")
 		return
 	}
 	if err = json.Unmarshal([]byte(value), &response); err != nil {
