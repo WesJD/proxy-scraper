@@ -2,14 +2,14 @@ package scraping
 
 import (
 	"time"
-
 	"golang.org/x/net/html"
-	"context"
-	"github.com/chromedp/chromedp"
+		"github.com/chromedp/chromedp"
 	"github.com/PuerkitoBio/goquery"
 	"strings"
 	"errors"
 	"github.com/WesJD/proxy-scraper/app/utils"
+		"fmt"
+	"github.com/WesJD/proxy-scraper/app/chrome"
 )
 
 type ProxyNova struct{}
@@ -21,32 +21,17 @@ type NovaProxy struct {
 }
 
 func (s *ProxyNova) Check(url string, trueResponse string) (result map[string]bool, err error) {
-
-	ctxt, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	c, err := chromedp.New(ctxt)
+	instance, err := chrome.DpInstance("proxynova")
 	if err != nil {
 		return
 	}
 
 	var htmlFull string
-	err = c.Run(ctxt, chromedp.Tasks{
+	err = instance.Chrome.Run(instance.Context, chromedp.Tasks{
 		chromedp.Navigate("https://www.proxynova.com/proxy-server-list/"),
 		chromedp.WaitVisible("#tbl_proxy_list"),
 		chromedp.OuterHTML("html", &htmlFull),
 	})
-
-	if err != nil {
-		return
-	}
-
-	err = c.Shutdown(ctxt)
-	if err != nil {
-		return
-	}
-
-	err = c.Wait()
 	if err != nil {
 		return
 	}
@@ -68,7 +53,7 @@ func (s *ProxyNova) Check(url string, trueResponse string) (result map[string]bo
 
 	for htmlProxy = proxyList.Nodes[0].FirstChild.NextSibling.NextSibling.NextSibling.FirstChild;
 		htmlProxy != nil;
-	htmlProxy = htmlProxy.NextSibling {
+		htmlProxy = htmlProxy.NextSibling {
 		if htmlProxy.Data != "tr" {
 			continue // some blank space shit
 		}
@@ -79,6 +64,8 @@ func (s *ProxyNova) Check(url string, trueResponse string) (result map[string]bo
 		address := proxy.Ip + ":" + proxy.Port
 		result[address] = utils.CheckProxy(url, trueResponse, address)
 	}
+
+	fmt.Println(":(")
 
 	return
 }

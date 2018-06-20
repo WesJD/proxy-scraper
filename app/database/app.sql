@@ -7,3 +7,6 @@ UPDATE proxies SET working = ?, checking = FALSE WHERE ip_port = ?;
 
 -- name: get-amount-working
 SELECT COUNT(*) FROM proxies WHERE working = TRUE;
+
+-- name: set-all-not-checking
+UPDATE proxies SET checking = FALSE;

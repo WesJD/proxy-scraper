@@ -6,10 +6,10 @@
         "username": "login",
         "password": "bigmodernautomotivegong",
         "database": "data",
-        "updateEveryMs": 300000
+        "updateEveryMs": 15000
     },
     "checking": {
-        "services": 2,
+        "services": 20,
         "perRound": 10,
         "olderThan": "1 minute",
         "everyMs": 1000

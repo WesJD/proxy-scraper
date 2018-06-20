@@ -8,7 +8,6 @@ import (
 	"github.com/WesJD/proxy-scraper/app/database"
 )
 
-// have failure amount
 func Start(config *config.Configuration, trueResponse string) {
 	updateStatement, err := database.AppSql.Prepare(database.Sql, "update-proxy")
 	utils.CheckError(err)
@@ -27,6 +26,8 @@ func Start(config *config.Configuration, trueResponse string) {
 
 					_, err := updateStatement.Exec(utils.CheckProxy(config.Static, trueResponse, ipPort), ipPort)
 					utils.CheckError(err)
+
+					database.AmountChecked++
 				}
 				rows.Close()
 				time.Sleep(config.Checking.EveryMs * time.Millisecond)

@@ -4,13 +4,16 @@ import (
 	"github.com/WesJD/proxy-scraper/app/utils"
 	"database/sql"
 	"github.com/influxdata/influxdb/client/v2"
-		"time"
+	"time"
 	"fmt"
-)
+	)
 
 var (
+	AmountChecked = 0
+
 	submitStatement *sql.Stmt
 	getWorkingStatement *sql.Stmt
+	lastReport int
 )
 
 func makeStatements() {
@@ -49,9 +52,19 @@ func ReportStats(batchConfig client.BatchPointsConfig) {
 	utils.CheckError(err)
 	batch.AddPoint(point)
 
-	err = Influx.Write(batch)
-	utils.CheckError(err)
+	currentTime := time.Now()
+	secondsPassed := (currentTime.Nanosecond() - lastReport) / 1000000000
+	if secondsPassed > 0 {
+		fields = map[string]interface{}{
+			"per second": AmountChecked / secondsPassed,
+		}
+		point, err = client.NewPoint("per_second", make(map[string]string), fields, currentTime)
+		utils.CheckError(err)
+		batch.AddPoint(point)
 
-	err = Influx.Close()
+		lastReport = currentTime.Nanosecond()
+	}
+
+	err = Influx.Write(batch)
 	utils.CheckError(err)
 }

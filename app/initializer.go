@@ -12,7 +12,8 @@ import (
 	"github.com/WesJD/proxy-scraper/app/checking"
 	"github.com/WesJD/proxy-scraper/app/utils"
 	"github.com/influxdata/influxdb/client/v2"
-)
+	"github.com/WesJD/proxy-scraper/app/chrome"
+	)
 
 func Initialize() {
 	cfg := config.Read()
@@ -35,9 +36,6 @@ func Initialize() {
 	scraping.Start(cfg, trueResponse)
 	checking.Start(cfg, trueResponse)
 
-	defer database.Influx.Close()
-	defer database.Sql.Close()
-
 	go func() {
 		for {
 			database.ReportStats(batchConfig)
@@ -45,12 +43,18 @@ func Initialize() {
 		}
 	}()
 
-	lock := true
 	signals := make(chan os.Signal)
 	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM, syscall.SIGKILL)
 	go func() {
 		<-signals
-		lock = false
+
+		_, err := database.AppSql.Exec(database.Sql, "set-all-not-checking")
+		utils.CheckError(err)
+
+		database.Influx.Close()
+		database.Sql.Close()
+		chrome.CloseInstances()
+
 		os.Exit(0)
 	}()
 
