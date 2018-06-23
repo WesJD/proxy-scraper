@@ -2,11 +2,11 @@ package checking
 
 import (
 	"github.com/WesJD/proxy-scraper/app/config"
-	"time"
 	"fmt"
 	"github.com/WesJD/proxy-scraper/app/utils"
 	"github.com/WesJD/proxy-scraper/app/database"
 	"sync/atomic"
+	"time"
 )
 
 func Start(config *config.Configuration, trueResponse string) {
@@ -17,7 +17,7 @@ func Start(config *config.Configuration, trueResponse string) {
 		go func() {
 			for {
 				//cannot prepare a CALL statement... has to just stay here
-				query := fmt.Sprintf("CALL matchProxies(%d, NOW() - INTERVAL %s)", config.Checking.PerRound, config.Checking.OlderThan)
+				query := fmt.Sprintf("CALL matchProxies(%d, NOW())", config.Checking.PerRound)
 				rows, err := database.Client.Query(query)
 				utils.CheckError(err)
 				for rows.Next() {
@@ -31,7 +31,7 @@ func Start(config *config.Configuration, trueResponse string) {
 					atomic.AddInt64(&database.AmountChecked, 1)
 				}
 				rows.Close()
-				time.Sleep(config.Checking.EveryMs * time.Millisecond)
+				time.Sleep(1)
 			}
 		}()
 	}

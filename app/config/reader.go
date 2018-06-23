@@ -25,8 +25,6 @@ type InfluxConfig struct {
 type CheckingConfig struct {
 	Services int `json:"services"`
 	PerRound int `json:"perRound"`
-	OlderThan string `json:"olderThan"`
-	EveryMs time.Duration `json:"everyMs"`
 }
 
 var defaultConfig = &Configuration{
@@ -42,8 +40,6 @@ var defaultConfig = &Configuration{
 	Checking: CheckingConfig{
 		Services: 50,
 		PerRound: 50,
-		OlderThan: "1 hour",
-		EveryMs: 1000,
 	},
 }
 
