@@ -6,22 +6,22 @@ import (
 	"github.com/influxdata/influxdb/client/v2"
 	"time"
 	"fmt"
-	)
+)
 
 var (
-	AmountChecked = 0
+	AmountChecked int64 = 0
 
 	submitStatement *sql.Stmt
 	getWorkingStatement *sql.Stmt
-	lastReport int
+	lastReport = time.Now().Unix()
 )
 
 func makeStatements() {
-	stmt, err := AppSql.Prepare(Sql, "insert-proxies")
+	stmt, err := Sql.Prepare(Client, "insert-proxies")
 	utils.CheckError(err)
 	submitStatement = stmt
 
-	stmt, err = AppSql.Prepare(Sql, "get-amount-working")
+	stmt, err = Sql.Prepare(Client, "get-amount-working")
 	utils.CheckError(err)
 	getWorkingStatement = stmt
 }
@@ -40,6 +40,7 @@ func ReportStats(batchConfig client.BatchPointsConfig) {
 	var amount int
 	rows.Next()
 	err = rows.Scan(&amount)
+	rows.Close()
 
 	batch, err := client.NewBatchPoints(batchConfig)
 	utils.CheckError(err)
@@ -47,14 +48,15 @@ func ReportStats(batchConfig client.BatchPointsConfig) {
 	fields := map[string]interface{}{
 		"amount": amount,
 	}
-	fmt.Println("amount", amount)
 	point, err := client.NewPoint("proxy_count", make(map[string]string), fields, time.Now())
 	utils.CheckError(err)
 	batch.AddPoint(point)
 
 	currentTime := time.Now()
-	secondsPassed := (currentTime.Nanosecond() - lastReport) / 1000000000
+	secondsPassed := currentTime.Unix() - lastReport
+	fmt.Println("sec", secondsPassed, "checked", AmountChecked)
 	if secondsPassed > 0 {
+		fmt.Println("div", AmountChecked / secondsPassed)
 		fields = map[string]interface{}{
 			"per second": AmountChecked / secondsPassed,
 		}
@@ -62,7 +64,8 @@ func ReportStats(batchConfig client.BatchPointsConfig) {
 		utils.CheckError(err)
 		batch.AddPoint(point)
 
-		lastReport = currentTime.Nanosecond()
+		lastReport = currentTime.Unix()
+		AmountChecked = 0
 	}
 
 	err = Influx.Write(batch)

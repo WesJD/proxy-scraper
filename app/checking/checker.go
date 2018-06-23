@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"github.com/WesJD/proxy-scraper/app/utils"
 	"github.com/WesJD/proxy-scraper/app/database"
+	"sync/atomic"
 )
 
 func Start(config *config.Configuration, trueResponse string) {
-	updateStatement, err := database.AppSql.Prepare(database.Sql, "update-proxy")
+	updateStatement, err := database.Sql.Prepare(database.Client, "update-proxy")
 	utils.CheckError(err)
 
 	for i := 0; i < config.Checking.Services; i++ {
@@ -17,7 +18,7 @@ func Start(config *config.Configuration, trueResponse string) {
 			for {
 				//cannot prepare a CALL statement... has to just stay here
 				query := fmt.Sprintf("CALL matchProxies(%d, NOW() - INTERVAL %s)", config.Checking.PerRound, config.Checking.OlderThan)
-				rows, err := database.Sql.Query(query)
+				rows, err := database.Client.Query(query)
 				utils.CheckError(err)
 				for rows.Next() {
 					var ipPort string
@@ -27,7 +28,7 @@ func Start(config *config.Configuration, trueResponse string) {
 					_, err := updateStatement.Exec(utils.CheckProxy(config.Static, trueResponse, ipPort), ipPort)
 					utils.CheckError(err)
 
-					database.AmountChecked++
+					atomic.AddInt64(&database.AmountChecked, 1)
 				}
 				rows.Close()
 				time.Sleep(config.Checking.EveryMs * time.Millisecond)

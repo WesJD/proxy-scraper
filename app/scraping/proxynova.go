@@ -8,8 +8,7 @@ import (
 	"strings"
 	"errors"
 	"github.com/WesJD/proxy-scraper/app/utils"
-		"fmt"
-	"github.com/WesJD/proxy-scraper/app/chrome"
+			"github.com/WesJD/proxy-scraper/app/chrome"
 )
 
 type ProxyNova struct{}
@@ -65,14 +64,14 @@ func (s *ProxyNova) Check(url string, trueResponse string) (result map[string]bo
 		result[address] = utils.CheckProxy(url, trueResponse, address)
 	}
 
-	fmt.Println(":(")
-
 	return
 }
 
 func parseProxy(proxy *html.Node) *NovaProxy {
 	parse := proxy.FirstChild.NextSibling
-	if parse == nil {
+	if parse == nil ||
+		parse.FirstChild.NextSibling.FirstChild == nil ||
+		parse.FirstChild.NextSibling.FirstChild.NextSibling == nil {
 		return nil
 	}
 

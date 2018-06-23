@@ -1,17 +1,25 @@
 package utils
 
 import (
-	"runtime"
 	"path/filepath"
+	"os"
+	"github.com/craftimize/sneaker/app/utils"
 	"path"
 )
 
-func Directory() (dir string) {
-	_, dirname, _, _ := runtime.Caller(2)
-	dir = filepath.Dir(dirname)
-	return
+var execPath string
+
+func init() {
+	ex, err := os.Executable()
+	utils.CheckError(err)
+	execPath = filepath.Dir(ex)
 }
 
 func Resource(resource string) (file string) {
-	return path.Join(Directory(), resource)
+	return path.Join(execPath, resource)
+}
+
+func Exists(resource string) bool {
+	_, err := os.Stat(resource)
+	return err == nil
 }

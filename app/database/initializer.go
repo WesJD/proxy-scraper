@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	Sql             *sql.DB
-	Influx          client.Client
-	AppSql          *dotsql.DotSql
+	Client *sql.DB
+	Influx client.Client
+	Sql    *dotsql.DotSql
 )
 
 func Connect(config *config.Configuration) {
@@ -25,20 +25,20 @@ func Connect(config *config.Configuration) {
 	utils.CheckError(err)
 
 	sqlDb, err := sql.Open("mysql", config.DatabaseUrl)
-	Sql = sqlDb
+	Client = sqlDb
 	utils.CheckError(err)
 
 	setupDefaults()
 
-	app, err := dotsql.LoadFromFile(utils.Resource("app.sql"))
+	app, err := dotsql.LoadFromString(AppSql)
 	utils.CheckError(err)
-	AppSql = app
+	Sql = app
 
 	makeStatements()
 }
 
 func setupDefaults() {
-	setup, err := dotsql.LoadFromFile(utils.Resource("setup.sql"))
+	setup, err := dotsql.LoadFromString(SetupSql)
 	utils.CheckError(err)
 
 	//defaults
@@ -46,7 +46,7 @@ func setupDefaults() {
 		"setup-proxies",
 	}
 	for _, name := range names {
-		_, err = setup.Exec(Sql, name)
+		_, err = setup.Exec(Client, name)
 		utils.CheckError(err)
 	}
 }

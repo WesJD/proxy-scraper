@@ -48,11 +48,11 @@ func Initialize() {
 	go func() {
 		<-signals
 
-		_, err := database.AppSql.Exec(database.Sql, "set-all-not-checking")
+		_, err := database.Sql.Exec(database.Client, "set-all-not-checking")
 		utils.CheckError(err)
 
 		database.Influx.Close()
-		database.Sql.Close()
+		database.Client.Close()
 		chrome.CloseInstances()
 
 		os.Exit(0)
