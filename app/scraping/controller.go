@@ -28,7 +28,7 @@ func Start(config *config.Configuration, trueResponse string) {
 	for _, checker := range checkers {
 		go func(checker Checker) {
 			for {
-				proxies, err := checker.Check(config.Static, trueResponse)
+				proxies, err := checker.Check(config.Scraping.Static, trueResponse)
 				if err != nil {
 					fmt.Println(reflect.TypeOf(checker), err)
 					time.Sleep(checker.WaitTime())

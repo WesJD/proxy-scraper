@@ -8,8 +8,7 @@ import (
 )
 
 type Configuration struct {
-	DatabaseUrl string `json:"databaseUrl"`
-	Static string `json:"static"`
+	Scraping ScrapingConfig `json:"scraping""`
 	Influx InfluxConfig `json:"influx"`
 	Checking CheckingConfig `json:"checking"`
 }
@@ -27,9 +26,18 @@ type CheckingConfig struct {
 	PerRound int `json:"perRound"`
 }
 
+type ScrapingConfig struct {
+	DatabaseUrl string `json:"databaseUrl"`
+	Static string `json:"static"`
+	TimeoutMs int `json:"timeoutMs"`
+}
+
 var defaultConfig = &Configuration{
-	DatabaseUrl: "",
-	Static: "http://www.example.com",
+	Scraping: ScrapingConfig{
+		DatabaseUrl: "",
+		Static: "http://www.example.com",
+		TimeoutMs: 1000,
+	},
 	Influx: InfluxConfig{
 		Address: "http://localhost:8086",
 		Username: "",
@@ -47,7 +55,7 @@ func Read() (config *Configuration) {
 	path := utils.Resource("config.json")
 	if !utils.Exists(path) {
 		config = defaultConfig
-		encoded, err := json.Marshal(config)
+		encoded, err := json.MarshalIndent(config, "", "    ")
 		utils.CheckError(err)
 		err = ioutil.WriteFile(path, encoded, 0644)
 		utils.CheckError(err)

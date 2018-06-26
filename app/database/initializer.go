@@ -24,7 +24,7 @@ func Connect(config *config.Configuration) {
 	Influx = influx
 	utils.CheckError(err)
 
-	sqlDb, err := sql.Open("mysql", config.DatabaseUrl)
+	sqlDb, err := sql.Open("mysql", config.Scraping.DatabaseUrl)
 	Client = sqlDb
 	utils.CheckError(err)
 

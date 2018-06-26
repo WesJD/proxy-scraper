@@ -25,7 +25,7 @@ func Start(config *config.Configuration, trueResponse string) {
 					err = rows.Scan(&ipPort)
 					utils.CheckError(err)
 
-					_, err := updateStatement.Exec(utils.CheckProxy(config.Static, trueResponse, ipPort), ipPort)
+					_, err := updateStatement.Exec(utils.CheckProxy(config.Scraping.Static, trueResponse, ipPort), ipPort)
 					utils.CheckError(err)
 
 					atomic.AddInt64(&database.AmountChecked, 1)
