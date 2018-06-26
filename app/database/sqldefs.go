@@ -19,10 +19,11 @@ const (
 	SetupSql = `
 	-- name: setup-proxies
 	CREATE TABLE IF NOT EXISTS proxies (
-  	ip_port      CHAR(40)  NOT NULL,
-  	checking     BOOL      NOT NULL,
-  	working      BOOL      NOT NULL,
-  	last_checked TIMESTAMP NOT NULL,
+  	ip_port      CHAR(40)         NOT NULL,
+  	checking     BOOL             NOT NULL,
+  	working      BOOL             NOT NULL,
+  	last_checked TIMESTAMP        NOT NULL,
+	consec_fails INTEGER UNSIGNED NOT NULL,
   	UNIQUE (ip_port)
 	);
 
