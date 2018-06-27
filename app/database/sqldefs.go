@@ -3,11 +3,11 @@ package database
 const (
 	AppSql = `
 	-- name: insert-proxies
-	INSERT INTO proxies (ip_port, working) VALUES (?, ?)
-	ON DUPLICATE KEY UPDATE working = VALUES(working);
+	INSERT INTO proxies (ip_port, working, consec_fails) VALUES (?, ?, 0)
+	ON DUPLICATE KEY UPDATE working = VALUES(working), consec_fails = 0;
 
-	-- name: update-proxy
-	UPDATE proxies SET working = ?, checking = FALSE WHERE ip_port = ?;
+	-- name: update-proxy-working
+	UPDATE proxies SET working = TRUE, checking = FALSE, consec_fails = 0 WHERE ip_port = ?;
 
 	-- name: get-amount-working
 	SELECT COUNT(*) FROM proxies WHERE working = TRUE;
@@ -27,7 +27,7 @@ const (
   	UNIQUE (ip_port)
 	);
 
-	-- name: create-procedure
+	-- name: create-match-proxies-procedure
 	DELIMITER //
 	DROP PROCEDURE IF EXISTS matchProxies //
 
@@ -37,6 +37,22 @@ const (
     	START TRANSACTION;
     	SELECT ip_port FROM proxies WHERE checking = FALSE AND last_checked < age ORDER BY last_checked ASC LIMIT amount FOR UPDATE;
     	UPDATE proxies SET checking = TRUE WHERE checking = FALSE AND last_checked < age ORDER BY last_checked ASC LIMIT amount;
+    	COMMIT;
+	END
+	//
+
+	DELIMITER ;
+
+	-- name: create-update-fail-procedure
+	DELIMITER //
+	DROP PROCEDURE IF EXISTS proxyFailed //
+
+	CREATE PROCEDURE
+  		proxyFailed( in_ip_port CHAR(40) )
+	BEGIN
+    	START TRANSACTION;
+		UPDATE proxies SET working = FALSE, checking = FALSE, consec_fails = consec_fails + 1 WHERE ip_port = in_ip_port;
+    	SELECT consec_fails FROM proxies WHERE ip_port = in_ip_port FOR UPDATE;
     	COMMIT;
 	END
 	//

@@ -10,7 +10,8 @@ import (
 )
 
 func Start(config *config.Configuration, trueResponse string) {
-	updateStatement, err := database.Sql.Prepare(database.Client, "update-proxy")
+	updateSuccessStatement, err := database.Sql.Prepare(database.Client, "update-proxy-working")
+	proxyFailedQuery := "CALL proxyFailed('%s')"
 	utils.CheckError(err)
 
 	for i := 0; i < config.Checking.Services; i++ {
@@ -25,8 +26,24 @@ func Start(config *config.Configuration, trueResponse string) {
 					err = rows.Scan(&ipPort)
 					utils.CheckError(err)
 
-					_, err := updateStatement.Exec(utils.CheckProxy(config.Scraping.Static, trueResponse, ipPort), ipPort)
-					utils.CheckError(err)
+					checkResult := utils.CheckProxy(config.Scraping.Static, trueResponse, ipPort)
+
+					if checkResult {
+						_, err := updateSuccessStatement.Exec(ipPort)
+						utils.CheckError(err)
+					} else {
+						failRows, err := database.Client.Query(fmt.Sprintf(proxyFailedQuery, ipPort))
+						utils.CheckError(err)
+
+						var consecFails int64
+
+						for failRows.Next() {
+							err = failRows.Scan(&consecFails)
+							utils.CheckError(err)
+						}
+
+						failRows.Close()
+					}
 
 					atomic.AddInt64(&database.AmountChecked, 1)
 				}
