@@ -1,8 +1,8 @@
 package config
 
 import (
+		"time"
 	"github.com/WesJD/proxy-scraper/app/utils"
-	"time"
 	"encoding/json"
 	"io/ioutil"
 )
@@ -32,35 +32,39 @@ type ScrapingConfig struct {
 	TimeoutMs int `json:"timeoutMs"`
 }
 
-var defaultConfig = &Configuration{
-	Scraping: ScrapingConfig{
-		DatabaseUrl: "",
-		Static: "http://www.example.com",
-		TimeoutMs: 1000,
-	},
-	Influx: InfluxConfig{
-		Address: "http://localhost:8086",
-		Username: "",
-		Password: "",
-		Database: "",
-		UpdateEveryMs: 15000,
-	},
-	Checking: CheckingConfig{
-		Services: 50,
-		PerRound: 50,
-	},
-}
+var (
+	Values *Configuration
 
-func Read() (config *Configuration) {
+	defaultConfig = &Configuration{
+		Scraping: ScrapingConfig{
+			DatabaseUrl: "",
+			Static: "http://www.example.com",
+			TimeoutMs: 1000,
+		},
+		Influx: InfluxConfig{
+			Address: "http://localhost:8086",
+			Username: "",
+			Password: "",
+			Database: "",
+			UpdateEveryMs: 15000,
+		},
+		Checking: CheckingConfig{
+			Services: 50,
+			PerRound: 50,
+		},
+	}
+)
+
+func init() {
 	path := utils.Resource("config.json")
 	if !utils.Exists(path) {
-		config = defaultConfig
+		Values = defaultConfig
 		encoded, err := json.MarshalIndent(config, "", "    ")
 		utils.CheckError(err)
 		err = ioutil.WriteFile(path, encoded, 0644)
 		utils.CheckError(err)
 	} else {
-		config = &Configuration{}
+		Values = &Configuration{}
 		encoded, err := ioutil.ReadFile(path)
 		utils.CheckError(err)
 		err = json.Unmarshal(encoded, config)

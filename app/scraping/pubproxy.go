@@ -19,7 +19,7 @@ type PubProxyResponseData struct {
 
 type PubProxy struct{}
 
-func (s *PubProxy) Check(url string, trueResponse string) (result map[string]bool, err error) {
+func (s *PubProxy) Check(trueResponse string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("http://pubproxy.com/api/proxy?limit=20&level=anonymous&level=elite")
@@ -43,7 +43,7 @@ func (s *PubProxy) Check(url string, trueResponse string) (result map[string]boo
 	result = make(map[string]bool)
 	for _, proxy := range response.Data {
 		address := proxy.IpPort
-		result[address] = utils.CheckProxy(url, trueResponse, address)
+		result[address] = utils.CheckProxy(trueResponse, address)
 	}
 
 	return

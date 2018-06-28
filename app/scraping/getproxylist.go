@@ -16,7 +16,7 @@ type GetProxyListResponse struct {
 
 type GetProxyList struct{}
 
-func (s *GetProxyList) Check(url string, trueResponse string) (result map[string]bool, err error) {
+func (s *GetProxyList) Check(trueResponse string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("https://api.getproxylist.com/proxy?protocol[]=http&anonymity[]=high%20anonymity&anonymity[]=anonymous")
@@ -41,7 +41,7 @@ func (s *GetProxyList) Check(url string, trueResponse string) (result map[string
 		return
 	}
 	address := fmt.Sprintf("%s:%d", response.Ip, response.Port)
-	result[address] = utils.CheckProxy(url, trueResponse, address)
+	result[address] = utils.CheckProxy(trueResponse, address)
 
 	return
 }

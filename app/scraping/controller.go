@@ -3,8 +3,7 @@ package scraping
 import (
 	"time"
 		"fmt"
-		"github.com/WesJD/proxy-scraper/app/config"
-	"github.com/WesJD/proxy-scraper/app/database"
+			"github.com/WesJD/proxy-scraper/app/database"
 	"reflect"
 )
 
@@ -20,15 +19,15 @@ var (
 )
 
 type Checker interface {
-	Check(url string, trueResponse string) (map[string]bool, error)
+	Check(trueResponse string) (map[string]bool, error)
 	WaitTime() time.Duration
 }
 
-func Start(config *config.Configuration, trueResponse string) {
+func Start(trueResponse string) {
 	for _, checker := range checkers {
 		go func(checker Checker) {
 			for {
-				proxies, err := checker.Check(config.Scraping.Static, trueResponse)
+				proxies, err := checker.Check(trueResponse)
 				if err != nil {
 					fmt.Println(reflect.TypeOf(checker), err)
 					time.Sleep(checker.WaitTime())

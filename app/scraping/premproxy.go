@@ -22,7 +22,7 @@ const (
  	totalPages = 13 // there are no more than 13 available
 )
 
-func (s *PremProxy) Check(url string, trueResponse string) (result map[string]bool, err error) {
+func (s *PremProxy) Check(trueResponse string) (result map[string]bool, err error) {
 	var proxies []string
 
 	result = make(map[string]bool)
@@ -33,7 +33,7 @@ func (s *PremProxy) Check(url string, trueResponse string) (result map[string]bo
 			return
 		}
 		for _, proxy := range proxies {
-			result[proxy] = utils.CheckProxy(url, trueResponse, proxy)
+			result[proxy] = utils.CheckProxy(trueResponse, proxy)
 		}
 	}
 

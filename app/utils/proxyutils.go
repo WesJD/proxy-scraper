@@ -2,13 +2,15 @@ package utils
 
 import (
 	"github.com/ddliu/go-httpclient"
-	)
+	"github.com/WesJD/proxy-scraper/app/config"
+)
 
-func CheckProxy(url string, trueResponse string, proxyIp string) bool {
+func CheckProxy(trueResponse string, proxyIp string) bool {
 	res, err := httpclient.
 		Begin().
 		WithOption(httpclient.OPT_PROXY, proxyIp).
-		Get(url)
+		WithOption(httpclient.OPT_TIMEOUT_MS, config.Values.Scraping.TimeoutMs).
+		Get(config.Values.Scraping.Static)
 	if err != nil {
 		return false
 	}

@@ -26,7 +26,7 @@ const (
  	proxiesPerCheck = 50
 )
 
-func (s *Hidester) Check(url string, trueResponse string) (result map[string]bool, err error) {
+func (s *Hidester) Check(trueResponse string) (result map[string]bool, err error) {
 	formattedUrl := fmt.Sprintf(checkUrl, s.Offset, proxiesPerCheck)
 	result = make(map[string]bool)
 
@@ -52,7 +52,7 @@ func (s *Hidester) Check(url string, trueResponse string) (result map[string]boo
 			return
 		}
 		s.Offset = 0
-		return s.Check(url, trueResponse)
+		return s.Check(trueResponse)
 	}
 
 	s.Offset++
@@ -61,7 +61,7 @@ func (s *Hidester) Check(url string, trueResponse string) (result map[string]boo
 	for _, proxy := range response {
 		if proxy.Type == "http" && proxy.Anonymity != "Transparent" {
 			address := proxy.Ip + ":" + strconv.Itoa(proxy.Port)
-			result[address] = utils.CheckProxy(url, trueResponse, address)
+			result[address] = utils.CheckProxy(trueResponse, address)
 		}
 	}
 

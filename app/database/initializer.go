@@ -15,16 +15,16 @@ var (
 	Sql    *dotsql.DotSql
 )
 
-func Connect(config *config.Configuration) {
+func Connect() {
 	influx, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     config.Influx.Address,
-		Username: config.Influx.Username,
-		Password: config.Influx.Password,
+		Addr:     config.Values.Influx.Address,
+		Username: config.Values.Influx.Username,
+		Password: config.Values.Influx.Password,
 	})
 	Influx = influx
 	utils.CheckError(err)
 
-	sqlDb, err := sql.Open("mysql", config.Scraping.DatabaseUrl)
+	sqlDb, err := sql.Open("mysql", config.Values.Scraping.DatabaseUrl)
 	Client = sqlDb
 	utils.CheckError(err)
 

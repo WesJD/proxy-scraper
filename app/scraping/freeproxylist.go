@@ -10,7 +10,7 @@ import (
 
 type FreeProxyList struct{}
 
-func (s *FreeProxyList) Check(url string, trueResponse string) (result map[string]bool, err error) {
+func (s *FreeProxyList) Check(trueResponse string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("https://free-proxy-list.net/anonymous-proxy.html")
@@ -34,7 +34,7 @@ func (s *FreeProxyList) Check(url string, trueResponse string) (result map[strin
 		fc := htmlProxy.FirstChild
 		address := fc.FirstChild.Data + ":" + fc.NextSibling.FirstChild.Data
 
-		result[address] = utils.CheckProxy(url, trueResponse, address)
+		result[address] = utils.CheckProxy(trueResponse, address)
 	}
 
 	return

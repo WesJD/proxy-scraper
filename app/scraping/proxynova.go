@@ -19,7 +19,7 @@ type NovaProxy struct {
 	Anonymity string
 }
 
-func (s *ProxyNova) Check(url string, trueResponse string) (result map[string]bool, err error) {
+func (s *ProxyNova) Check(trueResponse string) (result map[string]bool, err error) {
 	instance, err := chrome.DpInstance("proxynova")
 	if err != nil {
 		return
@@ -61,7 +61,7 @@ func (s *ProxyNova) Check(url string, trueResponse string) (result map[string]bo
 			continue
 		}
 		address := proxy.Ip + ":" + proxy.Port
-		result[address] = utils.CheckProxy(url, trueResponse, address)
+		result[address] = utils.CheckProxy(trueResponse, address)
 	}
 
 	return

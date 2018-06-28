@@ -9,16 +9,16 @@ import (
 	"time"
 )
 
-func Start(config *config.Configuration, trueResponse string) {
+func Start(trueResponse string) {
 	updateSuccessStatement, err := database.Sql.Prepare(database.Client, "update-proxy-working")
 	proxyFailedQuery := "CALL proxyFailed('%s')"
 	utils.CheckError(err)
 
-	for i := 0; i < config.Checking.Services; i++ {
+	for i := 0; i < config.Values.Checking.Services; i++ {
 		go func() {
 			for {
 				//cannot prepare a CALL statement... has to just stay here
-				query := fmt.Sprintf("CALL matchProxies(%d, NOW())", config.Checking.PerRound)
+				query := fmt.Sprintf("CALL matchProxies(%d, NOW())", config.Values.Checking.PerRound)
 				rows, err := database.Client.Query(query)
 				utils.CheckError(err)
 				for rows.Next() {
@@ -26,7 +26,7 @@ func Start(config *config.Configuration, trueResponse string) {
 					err = rows.Scan(&ipPort)
 					utils.CheckError(err)
 
-					checkResult := utils.CheckProxy(config.Scraping.Static, trueResponse, ipPort)
+					checkResult := utils.CheckProxy(trueResponse, ipPort)
 
 					if checkResult {
 						_, err := updateSuccessStatement.Exec(ipPort)
