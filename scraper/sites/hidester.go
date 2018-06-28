@@ -1,4 +1,4 @@
-package scraping
+package sites
 
 import (
 	"time"
@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"github.com/ddliu/go-httpclient"
 	"encoding/json"
-	"github.com/WesJD/proxy-scraper/app/utils"
 	"errors"
+	"github.com/WesJD/proxy-scraper/utils"
 )
 
 type Hidester struct {
@@ -26,7 +26,7 @@ const (
  	proxiesPerCheck = 50
 )
 
-func (s *Hidester) Check(trueResponse string) (result map[string]bool, err error) {
+func (s *Hidester) Check(url string) (result map[string]bool, err error) {
 	formattedUrl := fmt.Sprintf(checkUrl, s.Offset, proxiesPerCheck)
 	result = make(map[string]bool)
 
@@ -52,7 +52,7 @@ func (s *Hidester) Check(trueResponse string) (result map[string]bool, err error
 			return
 		}
 		s.Offset = 0
-		return s.Check(trueResponse)
+		return s.Check(url)
 	}
 
 	s.Offset++
@@ -61,7 +61,7 @@ func (s *Hidester) Check(trueResponse string) (result map[string]bool, err error
 	for _, proxy := range response {
 		if proxy.Type == "http" && proxy.Anonymity != "Transparent" {
 			address := proxy.Ip + ":" + strconv.Itoa(proxy.Port)
-			result[address] = utils.CheckProxy(trueResponse, address)
+			result[address] = utils.CheckProxy(address, url)
 		}
 	}
 

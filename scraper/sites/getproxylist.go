@@ -1,12 +1,12 @@
-package scraping
+package sites
 
 import (
 	"github.com/ddliu/go-httpclient"
 	"fmt"
 	"time"
 	"encoding/json"
-	"github.com/WesJD/proxy-scraper/app/utils"
 	"github.com/headzoo/surf/errors"
+	"github.com/WesJD/proxy-scraper/utils"
 )
 
 type GetProxyListResponse struct {
@@ -16,7 +16,7 @@ type GetProxyListResponse struct {
 
 type GetProxyList struct{}
 
-func (s *GetProxyList) Check(trueResponse string) (result map[string]bool, err error) {
+func (s *GetProxyList) Check(url string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("https://api.getproxylist.com/proxy?protocol[]=http&anonymity[]=high%20anonymity&anonymity[]=anonymous")
@@ -41,7 +41,7 @@ func (s *GetProxyList) Check(trueResponse string) (result map[string]bool, err e
 		return
 	}
 	address := fmt.Sprintf("%s:%d", response.Ip, response.Port)
-	result[address] = utils.CheckProxy(trueResponse, address)
+	result[address] = utils.CheckProxy(address, url)
 
 	return
 }

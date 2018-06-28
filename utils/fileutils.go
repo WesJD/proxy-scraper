@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 	"strings"
-)
+			)
 
 var execPath string
 

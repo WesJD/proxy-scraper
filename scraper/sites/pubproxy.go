@@ -1,12 +1,12 @@
-package scraping
+package sites
 
 import (
 	"time"
 	"github.com/ddliu/go-httpclient"
 	"encoding/json"
-	"github.com/WesJD/proxy-scraper/app/utils"
 	"strings"
 	"github.com/headzoo/surf/errors"
+	"github.com/WesJD/proxy-scraper/utils"
 )
 
 type PubProxyResponse struct {
@@ -19,7 +19,7 @@ type PubProxyResponseData struct {
 
 type PubProxy struct{}
 
-func (s *PubProxy) Check(trueResponse string) (result map[string]bool, err error) {
+func (s *PubProxy) Check(url string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("http://pubproxy.com/api/proxy?limit=20&level=anonymous&level=elite")
@@ -43,7 +43,7 @@ func (s *PubProxy) Check(trueResponse string) (result map[string]bool, err error
 	result = make(map[string]bool)
 	for _, proxy := range response.Data {
 		address := proxy.IpPort
-		result[address] = utils.CheckProxy(trueResponse, address)
+		result[address] = utils.CheckProxy(address, url)
 	}
 
 	return

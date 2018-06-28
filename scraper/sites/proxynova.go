@@ -1,14 +1,14 @@
-package scraping
+package sites
 
 import (
 	"time"
 	"golang.org/x/net/html"
-		"github.com/chromedp/chromedp"
+	"github.com/chromedp/chromedp"
 	"github.com/PuerkitoBio/goquery"
 	"strings"
 	"errors"
-	"github.com/WesJD/proxy-scraper/app/utils"
-			"github.com/WesJD/proxy-scraper/app/chrome"
+	"github.com/WesJD/proxy-scraper/scraper/chrome"
+	"github.com/WesJD/proxy-scraper/utils"
 )
 
 type ProxyNova struct{}
@@ -19,7 +19,7 @@ type NovaProxy struct {
 	Anonymity string
 }
 
-func (s *ProxyNova) Check(trueResponse string) (result map[string]bool, err error) {
+func (s *ProxyNova) Check(url string) (result map[string]bool, err error) {
 	instance, err := chrome.DpInstance("proxynova")
 	if err != nil {
 		return
@@ -61,7 +61,7 @@ func (s *ProxyNova) Check(trueResponse string) (result map[string]bool, err erro
 			continue
 		}
 		address := proxy.Ip + ":" + proxy.Port
-		result[address] = utils.CheckProxy(trueResponse, address)
+		result[address] = utils.CheckProxy(address, url)
 	}
 
 	return

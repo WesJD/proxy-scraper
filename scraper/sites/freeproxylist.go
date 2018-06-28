@@ -1,16 +1,16 @@
-package scraping
+package sites
 
 import (
 	"github.com/ddliu/go-httpclient"
 	"github.com/PuerkitoBio/goquery"
 	"time"
 	"golang.org/x/net/html"
-	"github.com/WesJD/proxy-scraper/app/utils"
+	"github.com/WesJD/proxy-scraper/utils"
 )
 
 type FreeProxyList struct{}
 
-func (s *FreeProxyList) Check(trueResponse string) (result map[string]bool, err error) {
+func (s *FreeProxyList) Check(url string) (result map[string]bool, err error) {
 	res, err := httpclient.
 		Begin().
 		Get("https://free-proxy-list.net/anonymous-proxy.html")
@@ -34,7 +34,7 @@ func (s *FreeProxyList) Check(trueResponse string) (result map[string]bool, err 
 		fc := htmlProxy.FirstChild
 		address := fc.FirstChild.Data + ":" + fc.NextSibling.FirstChild.Data
 
-		result[address] = utils.CheckProxy(trueResponse, address)
+		result[address] = utils.CheckProxy(address, url)
 	}
 
 	return
