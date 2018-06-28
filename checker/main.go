@@ -5,7 +5,6 @@ import (
 	"log"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
-	"github.com/WesJD/proxy-scraper/app/database"
 	"sync/atomic"
 	"time"
 	"github.com/WesJD/proxy-scraper/config"
@@ -63,7 +62,7 @@ func main() {
 
 	// the actual checking services
 	for i := 0; i < cfg.Instancing.Services; i++ {
-		go check()
+		go check(sql)
 	}
 
 	go reportStatistics()
@@ -79,10 +78,10 @@ func main() {
 	}
 }
 
-func check() {
+func check(sql *sql.DB) {
 	for {
 		//cannot prepare a CALL statement... has to just stay here
-		rows, err := database.Client.Query(fmt.Sprintf(callFormat, cfg.Instancing.PerRound))
+		rows, err := sql.Query(fmt.Sprintf(callFormat, cfg.Instancing.PerRound))
 		utils.CheckError(err)
 		for rows.Next() {
 			var ipPort string
