@@ -28,7 +28,6 @@ const (
 		INSERT INTO proxies (ip_port, working, consec_fails) VALUES (?, ?, 0)
 		ON DUPLICATE KEY UPDATE working = VALUES(working), consec_fails = 0;
 	`
-	resetChecking = "UPDATE proxies SET checking = FALSE;"
 )
 
 var (
@@ -72,9 +71,6 @@ func main() {
 	// wait for kill
 	select {
 		case <-utils.WatchForKill():
-			_, err = sql.Exec(resetChecking)
-			utils.CheckError(err)
-
 			sql.Close()
 			chrome.CloseInstances()
 

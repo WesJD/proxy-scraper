@@ -14,6 +14,7 @@ import (
 const (
 	updateWorkingProxy = "UPDATE proxies SET working = TRUE, checking = FALSE, consec_fails = 0 WHERE ip_port = ?;"
 	updateNonWorkingProxy = "UPDATE proxies SET working = FALSE, checking = FALSE, consec_fails = consec_fails + 1 WHERE ip_port = ?;"
+	resetChecking = "UPDATE proxies SET checking = FALSE;"
 	callFormat = "CALL matchProxies(%d, NOW())"
 )
 
@@ -69,6 +70,9 @@ func main() {
 	// lock until close
 	select {
 		case <-utils.WatchForKill():
+			_, err = client.Exec(resetChecking)
+			utils.CheckError(err)
+
 			client.Close()
 			influx.Close()
 
