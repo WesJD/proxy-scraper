@@ -1,3 +1,4 @@
 #!/bin/sh
 go install ./checker
 go install ./count-reporter
+go install ./scraper

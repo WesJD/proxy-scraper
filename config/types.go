@@ -8,12 +8,16 @@ import (
 	influxDB "github.com/influxdata/influxdb/client/v2"
 )
 
+type ReadableConfiguration interface {
+	Read(data []byte) (out interface{}, err error)
+}
+
 type SQLDatabaseConfiguration struct {
 	DatabaseUrl string `json:"databaseUrl"`
 }
 
 func (config *SQLDatabaseConfiguration) OpenConnection() (*sql.DB, error) {
-	return sql.Open("sql", config.DatabaseUrl)
+	return sql.Open("mysql", config.DatabaseUrl)
 }
 
 type InfluxDatabaseConfiguration struct {

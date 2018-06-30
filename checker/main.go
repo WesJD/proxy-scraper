@@ -3,14 +3,13 @@ package main
 import (
 	"github.com/WesJD/proxy-scraper/utils"
 	"log"
-	_ "github.com/go-sql-driver/mysql"
 	"fmt"
 	"sync/atomic"
 	"time"
 	"github.com/WesJD/proxy-scraper/config"
-	"database/sql"
 	influxDB "github.com/influxdata/influxdb/client/v2"
-)
+	"database/sql"
+	)
 
 const (
 	updateWorkingProxy = "UPDATE proxies SET working = TRUE, checking = FALSE, consec_fails = 0 WHERE ip_port = ?;"
@@ -50,19 +49,19 @@ func main() {
 	influx, err = cfg.Influx.OpenConnection()
 	utils.CheckError(err)
 
-	// sql
-	sql, err := cfg.Sql.OpenConnection()
+	// client
+	client, err := cfg.Sql.OpenConnection()
 	utils.CheckError(err)
 
-	preparedUpdateWorkingProxy, err = sql.Prepare(updateWorkingProxy)
+	preparedUpdateWorkingProxy, err = client.Prepare(updateWorkingProxy)
 	utils.CheckError(err)
 
-	preparedUpdateNonWorkingProxy, err = sql.Prepare(updateNonWorkingProxy)
+	preparedUpdateNonWorkingProxy, err = client.Prepare(updateNonWorkingProxy)
 	utils.CheckError(err)
 
 	// the actual checking services
 	for i := 0; i < cfg.Instancing.Services; i++ {
-		go check(sql)
+		go check(client)
 	}
 
 	go reportStatistics()
@@ -70,7 +69,7 @@ func main() {
 	// lock until close
 	select {
 		case <-utils.WatchForKill():
-			sql.Close()
+			client.Close()
 			influx.Close()
 
 			fmt.Println("Goodbye.")
