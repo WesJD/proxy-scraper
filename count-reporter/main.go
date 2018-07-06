@@ -56,7 +56,7 @@ func main() {
 		err = influx.Write(batch)
 		utils.CheckError(err)
 
-		time.Sleep(cfg.Reporting.Every)
+		time.Sleep(cfg.Reporting.Every * time.Millisecond)
 	}
 
 	// wait for kill

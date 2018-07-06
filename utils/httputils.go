@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	pageCache map[string]string
+	pageCache = make(map[string]string)
 )
 
 func CachePage(url string) string {

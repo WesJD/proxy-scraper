@@ -90,8 +90,8 @@ func scrape(site sites.Site) {
 		}
 		fmt.Println(reflect.TypeOf(site), proxies)
 
-		for _, proxy := range proxies {
-			_, err = preparedCreateProxy.Exec(proxy)
+		for ipPort, working := range proxies {
+			_, err = preparedCreateProxy.Exec(ipPort, working)
 			utils.CheckError(err)
 		}
 

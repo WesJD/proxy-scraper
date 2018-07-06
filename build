@@ -1,4 +1,17 @@
-#!/bin/sh
+#!/bin/bash
+
 go install ./checker
+echo 'Built checker'
 go install ./count-reporter
+echo 'Built count reporter'
 go install ./scraper
+echo 'Built scraper, zipping...'
+
+cd ../../../../bin > /dev/null
+
+zip -q -j -D ../src/github.com/WesJD/proxy-scraper/proxy-scraper-components.zip checker count-reporter scraper
+cd - > /dev/null
+
+echo 'Uploading zip file...'
+curl -s --upload-file ./proxy-scraper-components.zip https://transfer.sh/proxy-scraper-components.zip | grep ""
+rm -rf proxy-scraper-components.zip

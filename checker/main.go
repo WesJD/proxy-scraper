@@ -15,7 +15,8 @@ const (
 	updateWorkingProxy = "UPDATE proxies SET working = TRUE, checking = FALSE, consec_fails = 0 WHERE ip_port = ?;"
 	updateNonWorkingProxy = "UPDATE proxies SET working = FALSE, checking = FALSE, consec_fails = consec_fails + 1 WHERE ip_port = ?;"
 	resetChecking = "UPDATE proxies SET checking = FALSE;"
-	callFormat = "CALL matchProxies(%d, NOW())"
+	callFormat = "CALL matchProxies(%d, NOW(), %d)"
+	maxConsecFails = 100000
 )
 
 var (
@@ -84,19 +85,21 @@ func main() {
 func check(sql *sql.DB) {
 	for {
 		//cannot prepare a CALL statement... has to just stay here
-		rows, err := sql.Query(fmt.Sprintf(callFormat, cfg.Instancing.PerRound))
+		rows, err := sql.Query(fmt.Sprintf(callFormat, cfg.Instancing.PerRound, maxConsecFails))
 		utils.CheckError(err)
 		for rows.Next() {
 			var ipPort string
 			err = rows.Scan(&ipPort)
 			utils.CheckError(err)
 
-			checkResult := utils.CheckProxy(ipPort, cfg.Checking.StaticUrl)
+			checkResult, checkError := utils.CheckProxyAndReason(ipPort, cfg.Checking.StaticUrl)
 
 			if checkResult {
 				_, err = preparedUpdateWorkingProxy.Exec(ipPort)
+				fmt.Println("Got a working proxy: " + ipPort)
 			} else {
 				_, err = preparedUpdateNonWorkingProxy.Exec(ipPort)
+				fmt.Println("Non working for reason " + checkError.Error())
 			}
 			utils.CheckError(err)
 
@@ -108,32 +111,34 @@ func check(sql *sql.DB) {
 }
 
 func reportStatistics() {
-	batch, err := influxDB.NewBatchPoints(cfg.Reporting.GetBatchConfig(&cfg.Influx))
-	utils.CheckError(err)
+	for {
+		batch, err := influxDB.NewBatchPoints(cfg.Reporting.GetBatchConfig(&cfg.Influx))
+		utils.CheckError(err)
 
-	currentTime := time.Now()
-	secondsPassed := currentTime.Unix() - lastReported
-	fmt.Println("sec", secondsPassed, "checked", amountChecked)
+		currentTime := time.Now()
+		secondsPassed := currentTime.Unix() - lastReported
+		fmt.Println("sec", secondsPassed, "checked", amountChecked)
 
-	if secondsPassed > 0 {
-		fmt.Println("div", amountChecked / secondsPassed)
+		if secondsPassed > 0 {
+			fmt.Println("div", amountChecked/secondsPassed)
 
-		fields := map[string]interface{}{
-			"per second": amountChecked / secondsPassed,
+			fields := map[string]interface{}{
+				"per second": amountChecked / secondsPassed,
+			}
+
+			point, err := influxDB.NewPoint("per_second", make(map[string]string), fields, currentTime)
+			utils.CheckError(err)
+			batch.AddPoint(point)
+
+			lastReported = currentTime.Unix()
+			amountChecked = 0
 		}
 
-		point, err := influxDB.NewPoint("per_second", make(map[string]string), fields, currentTime)
+		err = influx.Write(batch)
 		utils.CheckError(err)
-		batch.AddPoint(point)
 
-		lastReported = currentTime.Unix()
-		amountChecked = 0
+		time.Sleep(cfg.Reporting.Every * time.Millisecond) // uh, should this be using the config precision? because it's not right now
 	}
-
-	err = influx.Write(batch)
-	utils.CheckError(err)
-
-	time.Sleep(cfg.Reporting.Every)
 }
 
 func readConfig() (ret Configuration) {
