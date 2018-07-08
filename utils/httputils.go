@@ -24,7 +24,7 @@ func GetCached(url string) (value string) {
 }
 
 func GetPage(url string) (trueResponse string) {
-	res, err := httpclient.Get(url)
+	res, err := httpclient.NewHttpClient().Get(url)
 	CheckError(err)
 	trueResponse, err = res.ToString()
 	CheckError(err)

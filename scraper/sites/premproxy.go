@@ -18,8 +18,8 @@ type HtmlProxy struct {
 }
 
 const (
- 	urlFormat = "https://premproxy.com/list/%02d.htm"
- 	totalPages = 13 // there are no more than 13 available
+	urlFormat  = "https://premproxy.com/list/%02d.htm"
+	totalPages = 13 // there are no more than 13 available
 )
 
 func (s *PremProxy) Check(url string) (result map[string]bool, err error) {
@@ -58,9 +58,14 @@ func getProxies(pageNumber int) (proxies []string, err error) {
 		return
 	}
 
-	for htmlProxyNode := doc.Find("#proxylistt").Nodes[0].FirstChild.NextSibling.NextSibling.NextSibling.FirstChild;
+	proxyList := doc.Find("#proxylistt")
+	if len(proxyList.Nodes) == 0 {
+		return
+	}
+
+	for htmlProxyNode := proxyList.Nodes[0].FirstChild.NextSibling.NextSibling.NextSibling.FirstChild;
 		htmlProxyNode.NextSibling != nil;
-		htmlProxyNode = htmlProxyNode.NextSibling {
+	htmlProxyNode = htmlProxyNode.NextSibling {
 		proxy := pullProxy(htmlProxyNode)
 		if proxy == nil {
 			continue

@@ -12,11 +12,10 @@ import (
 	)
 
 const (
-	updateWorkingProxy = "UPDATE proxies SET working = TRUE, checking = FALSE, consec_fails = 0 WHERE ip_port = ?;"
-	updateNonWorkingProxy = "UPDATE proxies SET working = FALSE, checking = FALSE, consec_fails = consec_fails + 1 WHERE ip_port = ?;"
-	resetChecking = "UPDATE proxies SET checking = FALSE;"
+	updateWorkingProxy = "UPDATE proxies SET working = TRUE, consec_fails = 0, consec_success = consec_success + 1 WHERE ip_port = ?;"
+	updateNonWorkingProxy = "UPDATE proxies SET working = FALSE, consec_fails = consec_fails + 1, consec_success = 0 WHERE ip_port = ?;"
 	callFormat = "CALL matchProxies(%d, NOW(), %d)"
-	maxConsecFails = 100000
+	maxConsecFails = 50
 )
 
 var (
@@ -71,8 +70,6 @@ func main() {
 	// lock until close
 	select {
 		case <-utils.WatchForKill():
-			_, err = client.Exec(resetChecking)
-			utils.CheckError(err)
 
 			client.Close()
 			influx.Close()
@@ -104,9 +101,10 @@ func check(sql *sql.DB) {
 			utils.CheckError(err)
 
 			atomic.AddInt64(&amountChecked, 1)
+			time.Sleep(1 * time.Millisecond)
 		}
 		rows.Close()
-		time.Sleep(1)
+		time.Sleep(50 * time.Millisecond)
 	}
 }
 

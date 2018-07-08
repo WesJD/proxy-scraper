@@ -17,16 +17,16 @@ const (
 	createTables = `
 		CREATE TABLE IF NOT EXISTS proxies (
   		ip_port      CHAR(40)         NOT NULL,
-  		checking     BOOL             NOT NULL,
   		working      BOOL             NOT NULL,
   		last_checked TIMESTAMP        NOT NULL,
 		consec_fails INTEGER UNSIGNED NOT NULL,
+		consec_success INTEGER UNSIGNED NOT NULL,
   		UNIQUE (ip_port)
 		);
 	`
 	createProxy = `
-		INSERT INTO proxies (ip_port, working, consec_fails) VALUES (?, ?, 0)
-		ON DUPLICATE KEY UPDATE working = VALUES(working), consec_fails = 0;
+		INSERT INTO proxies (ip_port, working, consec_fails, consec_success) VALUES (?, ?, 0, 0)
+		ON DUPLICATE KEY UPDATE working = VALUES(working), consec_fails = 0, consec_success = 0;
 	`
 )
 
